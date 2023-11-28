@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: eureka-server
+  cloud:    
+    config:
+      uri: http://localhost:8889/admin
+      profile: dev
+      fail-fast: false
+      retry:  
+        max-attempts: 10
+      name: eureka-server    
+
+logging:
+  file: eureka-server.log
+  path: ./logs  

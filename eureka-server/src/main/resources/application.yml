@@ -1,0 +1,33 @@
+# Server #  
+server:  
+  port: 8761
+
+# Management #
+management:
+  endpoints:
+    web:
+      base-path: /manage
+      exposure:
+        include: health,info,refresh,env
+
+# Eureka #
+eureka:
+  client:
+    registerWithEureka: true
+    fetchRegistry: false
+    serviceUrl:
+      defaultZone: http://${eureka.instance.ip-address:localhost}:${eureka.port:8761}/eureka/
+  instance:
+    status-page-url-path: ${management.endpoints.web.base-path}/info
+    health-check-url-path: ${management.endpoints.web.base-path}/health
+    prefer-ip-address: true     
+  server:
+    enableSelfPreservation: true
+    waitTimeInMsWhenSyncEmpty: 0 
+    response-cache-update-interval-ms: 1000
+    peer-eureka-nodes-update-interval-ms: 60000  
+  
+# Application Specific #  
+info:
+  component: Eureka Server
+      
