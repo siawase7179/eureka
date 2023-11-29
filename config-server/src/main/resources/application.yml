@@ -1,0 +1,83 @@
+server:
+  port: 8889
+
+spring.mvc.servlet.path: /admin
+eureka.instance.ip-address: localhost
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: bus-refresh
+
+spring:
+  rabbitmq:
+    addresses: rabbitM:5672,rabbitS:5672  
+    username: newgw
+    password: pwnewgw
+    virtual-host: mq_test
+  cloud:
+    config:
+      server:
+        git:
+          uri: ssh://git@git-server:2222/git-server/repos/config.git
+          ignore-local-ssh-settings: true
+          private-key: |
+            -----BEGIN RSA PRIVATE KEY-----
+            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
+            -----END RSA PRIVATE KEY-----
+
+eureka:
+  client:
+    registerWithEureka: true
+    fetchRegistry: false
+    serviceUrl:
+      defaultZone: http://${eureka.instance.ip-address:localhost}:${eureka.port:8761}/eureka/
