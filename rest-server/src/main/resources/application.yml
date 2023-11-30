@@ -1,0 +1,41 @@
+server:
+  port: 8001
+
+# Management #
+management:
+  server:  
+    ssl:
+      enabled: false
+  endpoints:
+    web:
+      base-path: /manage
+      exposure:
+        include: health,info,refresh,env
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: TRACE
+
+# Eureka #
+eureka:
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: http://${eureka.instance.ip-address:localhost}:${eureka.port:8761}/eureka/
+  instance:
+    status-page-url-path: ${management.endpoints.web.base-path}/info
+    health-check-url-path: ${management.endpoints.web.base-path}/health
+    prefer-ip-address: true     
+  server:
+    enableSelfPreservation: true
+    waitTimeInMsWhenSyncEmpty: 0 
+    response-cache-update-interval-ms: 1000
+    peer-eureka-nodes-update-interval-ms: 60000  
+
+ribbon:
+  eager-load:
+    enabled: true
+    clients:
+    - auth-server

@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: rest-server
+  cloud:    
+    config:
+      uri: http://config-server:8889/admin
+      profile: dev
+      fail-fast: false
+      retry:  
+        max-attempts: 10
+      name: rest-server
+
+logging:
+  file: rest-server.log
+  path: ./logs  
