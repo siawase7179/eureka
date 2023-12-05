@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,10 +14,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.exception.RestException;
+import com.example.feign.AuthorizeService;
+import com.example.feign.model.AccountInfo;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 public class RestServerController {
     private static final Logger LOGGER = LoggerFactory.getLogger(RestServerController.class);
+    @Autowired
+    private AuthorizeService authorizeService;
 
     @ResponseBody
 	@RequestMapping(
@@ -44,7 +50,16 @@ public class RestServerController {
             throw new RestException(HttpStatus.BAD_REQUEST,"90002", "Client-Password not set");
         }
 
+        AccountInfo accountInfo = getAccountInfo(clientId, clientPassword);
+                
+        ObjectMapper objectMapper = new ObjectMapper();
+        String response = objectMapper.writeValueAsString(accountInfo);
+
         LOGGER.info("remote:{}:{} clientId:{}, clientPassword:{}", request.getRemoteAddr(), request.getRemotePort(), clientId, clientPassword);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+    
+    public AccountInfo getAccountInfo(String clientId, String clientPassword){
+        return authorizeService.getAccount(clientId, clientPassword);
     }
 }

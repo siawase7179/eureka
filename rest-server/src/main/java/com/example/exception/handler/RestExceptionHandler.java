@@ -1,15 +1,16 @@
 package com.example.exception.handler;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.example.exception.ApiResponse;
 import com.example.exception.RestException;
 
-@RestControllerAdvice
-@RestController
+@ControllerAdvice
 public class RestExceptionHandler {
     @ExceptionHandler(
         RestException.class
@@ -21,5 +22,18 @@ public class RestExceptionHandler {
                                     .message(ex.getMessage())
                                     .build();
         return new ResponseEntity<>(response, ex.getStatus());
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
+    public ResponseEntity<ApiResponse> handleMethodNotAllowedException(HttpRequestMethodNotSupportedException ex) {
+        
+        ApiResponse response = ApiResponse.builder()
+                .status(String.valueOf(HttpStatus.METHOD_NOT_ALLOWED.value()))
+                .code("99999")
+                .message(ex.getLocalizedMessage())
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.METHOD_NOT_ALLOWED);
     }
 }
