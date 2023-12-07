@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: auth-server
+  cloud:    
+    config:
+      uri: http://config-server:8889/admin
+      profile: dev
+      fail-fast: false
+      retry:  
+        max-attempts: 10
+      name: auth-server
+
+logging:
+  file: auth-server.log
+  path: ./logs  
