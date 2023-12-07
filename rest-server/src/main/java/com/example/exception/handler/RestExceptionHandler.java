@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import com.example.exception.ApiResponse;
 import com.example.exception.RestException;
+import com.example.vo.ApiResponse;
 
 @ControllerAdvice
 public class RestExceptionHandler {
