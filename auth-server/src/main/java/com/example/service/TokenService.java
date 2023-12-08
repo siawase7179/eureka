@@ -66,7 +66,7 @@ public class TokenService {
                 claims = Jwts.parser().setSigningKey(DatatypeConverter.parseBase64Binary(secretKey)).parseClaimsJws(token).getBody();
                 LOGGER.error("Token id:{}, password:{}, expireTime:{} ", claims.get("id"), claims.get("password"), claims.getExpiration());
             } catch (ExpiredJwtException e) {
-                LOGGER.error("Expired Token id:{}, password:{}, expireTime:{} ", claims.get("id"), claims.get("password"), claims.getExpiration(), e);
+                LOGGER.error("Expired Token ", e);
                 return false;
             } catch (JwtException e) {
                 LOGGER.error("error", e);

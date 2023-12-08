@@ -17,16 +17,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.model.AccountInfo;
-import com.example.model.ApiResponse;
-import com.example.model.TokenInfo;
 import com.example.service.TokenService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 
 @RestController
 public class AuthorizeController {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthorizeController.class);    
-    private ObjectMapper mapper = new ObjectMapper();
 
     @Autowired
     private TokenService tokenService;
@@ -38,10 +33,13 @@ public class AuthorizeController {
     public ResponseEntity<Object> requestToken(HttpServletRequest request, @RequestBody AccountInfo accountInfo) throws Exception{
        
         LOGGER.info("clientId:{}, clientPassword:{}", accountInfo.getClientId(), accountInfo.getClientPassword());
-
-        TokenInfo tokenInfo = tokenService.makeToken(accountInfo.getClientId(), accountInfo.getClientPassword());
         
-        return new ResponseEntity<Object>(mapper.writeValueAsString(tokenInfo), HttpStatus.OK);
+        return new ResponseEntity<Object>(
+            tokenService.makeToken(
+                accountInfo.getClientId(),
+                accountInfo.getClientPassword()),
+            HttpStatus.OK
+            );
     }
 
     @ResponseBody
@@ -50,11 +48,7 @@ public class AuthorizeController {
                     value = "/token")
     public ResponseEntity<Object> validateToken(@RequestHeader("Authorization") String token){
         if (tokenService.checkValidToken(token) == false){
-            return new ResponseEntity<Object>(ApiResponse.builder()
-                                                        .code("90003")
-                                                        .message("Token Error")
-                                                        .status(String.valueOf(HttpStatus.UNAUTHORIZED.value()))
-                                                        .build(), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<Object>(HttpStatus.UNAUTHORIZED);
         }
         return new ResponseEntity<Object>(HttpStatus.OK);
     }

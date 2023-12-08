@@ -1,39 +1,92 @@
 package com.example.exception.handler;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 import com.example.exception.RestException;
 import com.example.vo.ApiResponse;
 
+import feign.FeignException;
+
 @ControllerAdvice
 public class RestExceptionHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RestExceptionHandler.class);
     @ExceptionHandler(
         RestException.class
     )
-    public ResponseEntity<ApiResponse> errorHandle(RestException ex){
+    public ResponseEntity<ApiResponse> errorHandle(RestException e){
+        LOGGER.error("error", e);
         ApiResponse response = ApiResponse.builder()
-                                    .status(String.valueOf(ex.getStatus().value()))
-                                    .code(ex.getCode())
-                                    .message(ex.getMessage())
+                                    .status(e.getStatus().value())
+                                    .code(e.getCode())
+                                    .message(e.getMessage())
                                     .build();
-        return new ResponseEntity<>(response, ex.getStatus());
+        return new ResponseEntity<>(response, e.getStatus());
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
-    public ResponseEntity<ApiResponse> handleMethodNotAllowedException(HttpRequestMethodNotSupportedException ex) {
-        
+    public ResponseEntity<ApiResponse> handleMethodNotAllowedException(HttpRequestMethodNotSupportedException e) {
+        LOGGER.error("error", e);
         ApiResponse response = ApiResponse.builder()
-                .status(String.valueOf(HttpStatus.METHOD_NOT_ALLOWED.value()))
-                .code("99999")
-                .message(ex.getLocalizedMessage())
+                .status(HttpStatus.METHOD_NOT_ALLOWED.value())
+                .code("90001")
+                .message(e.getLocalizedMessage())
                 .build();
 
         return new ResponseEntity<>(response, HttpStatus.METHOD_NOT_ALLOWED);
     }
+
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException e) {
+        LOGGER.error("error", e);
+        ApiResponse response = ApiResponse.builder()
+                .status(HttpStatus.NOT_FOUND.value())
+                .code("90002")
+                .message(e.getLocalizedMessage())
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    };
+
+    @ExceptionHandler(FeignException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<Object> handleAuthNotFoundException(FeignException e) {
+        LOGGER.error("error", e);
+        ApiResponse response = ApiResponse.builder()
+                .status(HttpStatus.NOT_FOUND.value())
+                .code("90003")
+                .message("id/pass not founded")
+                .build();
+        return new ResponseEntity<>(response,HttpStatus.NOT_FOUND);
+    };
+
+    @ExceptionHandler(FeignException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseEntity<Object> handleUnAuthorizedException(FeignException e) {
+        LOGGER.error("error", e);
+        ApiResponse response = ApiResponse.builder()
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .code("90004")
+                .message("Token Error")
+                .build();
+        return new ResponseEntity<>(response,HttpStatus.UNAUTHORIZED);
+    };
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<Object> handleRuntimeException(RuntimeException e) {
+        LOGGER.error("error", e);
+        ApiResponse response = ApiResponse.builder()
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .code("99999")
+                .message("Server error")
+                .build();
+        return new ResponseEntity<>(response,HttpStatus.INTERNAL_SERVER_ERROR);
+    };    
 }

@@ -19,30 +19,22 @@ import com.example.feign.AuthorizeService;
 import com.example.feign.model.AccountInfo;
 import com.example.feign.model.TokenInfo;
 import com.example.vo.ApiResponse;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
+@RequestMapping(value = "/v1")
 public class RestServerController {
     private static final Logger LOGGER = LoggerFactory.getLogger(RestServerController.class);
     @Autowired
     private AuthorizeService authorizeService;
 
     @ResponseBody
-	@RequestMapping(
-        method = RequestMethod.POST,
-        value="/**"
-    )
-	public ResponseEntity<HttpStatus> requsetErrorPath(HttpServletRequest request) {
-		LOGGER.error("{}, No handler found for {} {}", request.getRemoteHost(), request.getMethod(), request.getRequestURI());
-		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-	}
-
-    @ResponseBody
     @RequestMapping(method = RequestMethod.POST,
                     produces = MediaType.APPLICATION_JSON_VALUE,
                     value = "/request"
                     )
-    public ResponseEntity<Object> requstMessage(HttpServletRequest request, @RequestHeader("Authorization")String token){
+    public ResponseEntity<Object> requstMessage(HttpServletRequest request, @RequestHeader("Authorization")String token) throws JsonProcessingException{
         ApiResponse response = authorizeService.validateToken(token);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -57,22 +49,19 @@ public class RestServerController {
         String clientPassword = request.getHeader("X-Client-Password");
 
         if (clientId == null || clientId.length() <= 0){
-            throw new RestException(HttpStatus.BAD_REQUEST, "90001", "Client-Id not set");
+            throw new RestException(HttpStatus.BAD_REQUEST, "90003", "X-Client-Id not set");
         }
         if (clientPassword == null || clientPassword.length() <= 0){
-            throw new RestException(HttpStatus.BAD_REQUEST,"90002", "Client-Password not set");
+            throw new RestException(HttpStatus.BAD_REQUEST,"90004", "Client-Password not set");
         }
 
-        TokenInfo accountInfo = authorizeService.requestToken(AccountInfo.builder()
+        TokenInfo tokenInfo = authorizeService.requestToken(AccountInfo.builder()
                                                                             .clientId(clientId)
                                                                             .clientPassword(clientPassword)
                                                                             .build()
                                                                 );
-                
-        ObjectMapper objectMapper = new ObjectMapper();
-        String response = objectMapper.writeValueAsString(accountInfo);
 
         LOGGER.info("remote:{}:{} clientId:{}, clientPassword:{}", request.getRemoteAddr(), request.getRemotePort(), clientId, clientPassword);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(tokenInfo, HttpStatus.OK);
     }
 }

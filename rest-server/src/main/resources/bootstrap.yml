@@ -3,7 +3,7 @@ spring:
     name: rest-server
   cloud:    
     config:
-      uri: http://config-server:8889/admin
+      uri: http://localhost:8889/admin
       profile: dev
       fail-fast: false
       retry:  
