@@ -56,28 +56,35 @@ public class RestExceptionHandler {
     };
 
     @ExceptionHandler(FeignException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<Object> handleAuthNotFoundException(FeignException e) {
+    public ResponseEntity<Object> handleFeignException(FeignException e) {
         LOGGER.error("error", e);
-        ApiResponse response = ApiResponse.builder()
-                .status(HttpStatus.NOT_FOUND.value())
-                .code("90003")
-                .message("id/pass not founded")
+    
+        int httpStatus = e.status(); // FeignException에서 HTTP 상태 코드 가져오기
+    
+        if (httpStatus == HttpStatus.NOT_FOUND.value()) {
+            ApiResponse response = ApiResponse.builder()
+                    .status(HttpStatus.NOT_FOUND.value())
+                    .code("90003")
+                    .message("id/pass not found")
+                    .build();
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        } else if (httpStatus == HttpStatus.UNAUTHORIZED.value()) {
+            ApiResponse response = ApiResponse.builder()
+                    .status(HttpStatus.UNAUTHORIZED.value())
+                    .code("90004")
+                    .message("Token Error")
+                    .build();
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        } else {
+             ApiResponse response = ApiResponse.builder()
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .code("99999")
+                .message("Server error")
                 .build();
-        return new ResponseEntity<>(response,HttpStatus.NOT_FOUND);
-    };
-
-    @ExceptionHandler(FeignException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ResponseEntity<Object> handleUnAuthorizedException(FeignException e) {
-        LOGGER.error("error", e);
-        ApiResponse response = ApiResponse.builder()
-                .status(HttpStatus.UNAUTHORIZED.value())
-                .code("90004")
-                .message("Token Error")
-                .build();
-        return new ResponseEntity<>(response,HttpStatus.UNAUTHORIZED);
-    };
+        return new ResponseEntity<>(response,HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Object> handleRuntimeException(RuntimeException e) {
