@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: api-gateway
+  cloud:    
+    config:
+      uri: http://localhost:8889/admin
+      profile: dev
+      fail-fast: false
+      retry:  
+        max-attempts: 10
+      name: api-gateway
+
+logging:
+  file: api-gateway.log
+  path: ./logs  

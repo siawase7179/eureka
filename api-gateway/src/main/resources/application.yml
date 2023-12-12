@@ -1,0 +1,41 @@
+# Server #  
+server:
+  port: 9443
+
+# Management #
+management:
+  server: 
+    ssl:
+      enabled: false
+  endpoints:
+    web:
+      base-path: /manage
+      exposure:
+        include: health,info,refresh,env,routes
+        
+# Eureka #
+eureka:
+  client:
+    enabled: true
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: http://${eureka.instance.ip-address:localhost}:${eureka.port:8761}/eureka/
+  instance:
+    status-page-url-path: ${management.endpoints.web.base-path}/info
+    health-check-url-path: ${management.endpoints.web.base-path}/health
+    prefer-ip-address: true
+
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: rest-server
+          uri: lb://REST-SERVER
+          predicates:
+            - Path=/v1/token
+            - Method=POST
+          filters:
+            - name: AuthenticateFilter
+            
