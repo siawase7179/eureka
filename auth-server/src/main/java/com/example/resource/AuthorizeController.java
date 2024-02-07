@@ -1,7 +1,6 @@
 package com.example.resource;
 
 
-import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.model.AccountInfo;
 import com.example.service.TokenService;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 @RestController
 public class AuthorizeController {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthorizeController.class);    
@@ -28,7 +29,7 @@ public class AuthorizeController {
 
     @ResponseBody
 	@RequestMapping(method=RequestMethod.POST,
-					produces = MediaType.APPLICATION_JSON_UTF8_VALUE,
+					produces = MediaType.APPLICATION_JSON_VALUE,
 					value="/auth")
     public ResponseEntity<Object> requestToken(HttpServletRequest request, @RequestBody AccountInfo accountInfo) throws Exception{
        
@@ -44,7 +45,7 @@ public class AuthorizeController {
 
     @ResponseBody
     @RequestMapping(method = RequestMethod.POST,
-                    produces = MediaType.APPLICATION_JSON_UTF8_VALUE,
+                    produces = MediaType.APPLICATION_JSON_VALUE,
                     value = "/token")
     public ResponseEntity<Object> validateToken(@RequestHeader("Authorization") String token){
         if (tokenService.checkValidToken(token) == false){

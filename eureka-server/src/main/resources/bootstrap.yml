@@ -11,5 +11,6 @@ spring:
       name: eureka-server    
 
 logging:
-  file: eureka-server.log
-  path: ./logs  
+  file:
+    path: ./log
+    name: currentLog

@@ -45,19 +45,19 @@ public class GlobalExceptionHandler implements ErrorWebExceptionHandler {
         try{
             response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
             if (ex instanceof AuthenticateException){
-                response.setStatusCode(((AuthenticateException)ex).getStatus());
+                response.setStatusCode(((AuthenticateException)ex).getStatusCode());
 
-                apiResponse = ApiResponse.builder().status(((AuthenticateException)ex).getStatus().value())
+                apiResponse = ApiResponse.builder().status(((AuthenticateException)ex).getStatusCode().value())
                             .code(((AuthenticateException)ex).getCode())
                             .message(((AuthenticateException)ex).getMessage())
                             .build();
             }else if (ex instanceof ResponseStatusException){
-                response.setStatusCode(((ResponseStatusException)ex).getStatus());
+                response.setStatusCode(((ResponseStatusException)ex).getStatusCode());
 
                 apiResponse = ApiResponse.builder()
-                        .status(((ResponseStatusException)ex).getStatus().value())
+                        .status(((ResponseStatusException)ex).getStatusCode().value())
                         .code("90001")
-                        .message("No handler found for " + exchange.getRequest().getMethodValue() + " " + exchange.getRequest().getPath().toString())
+                        .message("No handler found for " + exchange.getRequest().getMethod().toString() + " " + exchange.getRequest().getPath().toString())
                         .build();
             }else if (ex instanceof NotFoundException){
                 apiResponse = ApiResponse.builder()

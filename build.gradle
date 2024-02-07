@@ -1,0 +1,14 @@
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'eclipse-wtp'
+ 
+    repositories {
+       mavenCentral()
+    }
+ 
+    version = '1.0'
+ 
+    jar {
+        manifest.attributes provider: 'gradle'
+    }
+}

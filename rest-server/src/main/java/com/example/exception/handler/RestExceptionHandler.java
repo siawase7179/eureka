@@ -4,18 +4,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.MethodNotAllowedException;
 
 import com.example.exception.RestException;
 import com.example.vo.ApiResponse;
 
 import feign.FeignException;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class RestExceptionHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(RestExceptionHandler.class);
     @ExceptionHandler(
@@ -30,30 +29,6 @@ public class RestExceptionHandler {
                                     .build();
         return new ResponseEntity<>(response, e.getStatus());
     }
-
-    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
-    public ResponseEntity<ApiResponse> handleMethodNotAllowedException(HttpRequestMethodNotSupportedException e) {
-        LOGGER.error("error", e);
-        ApiResponse response = ApiResponse.builder()
-                .status(HttpStatus.METHOD_NOT_ALLOWED.value())
-                .code("90001")
-                .message(e.getLocalizedMessage())
-                .build();
-
-        return new ResponseEntity<>(response, HttpStatus.METHOD_NOT_ALLOWED);
-    }
-
-    @ExceptionHandler(NoHandlerFoundException.class)
-    public ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException e) {
-        LOGGER.error("error", e);
-        ApiResponse response = ApiResponse.builder()
-                .status(HttpStatus.NOT_FOUND.value())
-                .code("90002")
-                .message(e.getLocalizedMessage())
-                .build();
-        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-    };
 
     @ExceptionHandler(FeignException.class)
     public ResponseEntity<Object> handleFeignException(FeignException e) {
@@ -83,6 +58,11 @@ public class RestExceptionHandler {
                 .build();
         return new ResponseEntity<>(response,HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @ExceptionHandler(MethodNotAllowedException.class)
+    public ResponseEntity<Object> handleMethodNotAllowd(MethodNotAllowedException e){
+        return new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
     }
     
 

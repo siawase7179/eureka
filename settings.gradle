@@ -1,0 +1,5 @@
+include 'eureka-server'
+include 'config-server'
+include 'api-gateway'
+include 'auth-server'
+include 'rest-server'

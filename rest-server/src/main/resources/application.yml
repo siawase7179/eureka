@@ -1,12 +1,15 @@
 server:
-  port: 8001
+  port: 8002
 
 spring:
-  web:
-    resources:
-      add-mappings: false
-  mvc:
-    throw-exception-if-no-handler-found: true
+  application:
+    name: rest-server
+  config:
+      import: "optional:configserver:"
+  cloud:
+    config:
+      uri: http://172.16.3.3:8889/admin
+      name: rest-server
 
 # Management #
 management:
@@ -23,6 +26,9 @@ logging:
   level:
     root: INFO
     org.springframework.web: TRACE
+  # file:
+  #   path: ./log
+  #   name: currentLog.log
 
 # Eureka #
 eureka:
@@ -30,7 +36,7 @@ eureka:
     registerWithEureka: true
     fetchRegistry: true
     serviceUrl:
-      defaultZone: http://${eureka.instance.ip-address:localhost}:${eureka.port:8761}/eureka/
+      defaultZone: http://${eureka.instance.ip-address:172.16.3.3}:${eureka.port:8761}/eureka/
   instance:
     status-page-url-path: ${management.endpoints.web.base-path}/info
     health-check-url-path: ${management.endpoints.web.base-path}/health

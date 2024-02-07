@@ -1,6 +1,6 @@
 buildscript {
 	ext {
-		springBootVersion = '2.1.0.RELEASE'
+		springBootVersion = '3.2.1'
 	}
 	repositories {
 		mavenCentral()
@@ -18,7 +18,7 @@ apply plugin: 'io.spring.dependency-management'
 apply plugin: 'pmd'
 
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = 1.8
+sourceCompatibility = 17
 
 repositories {
 	mavenCentral()
@@ -31,17 +31,17 @@ ext {
 
 dependencies {
 
-	compile('org.springframework.cloud:spring-cloud-starter-netflix-eureka-server')
-	compile('org.springframework.cloud:spring-cloud-starter-netflix-eureka-client')
-	compile group: 'net.logstash.logback', name: 'logstash-logback-encoder', version: '4.10'
-	compile('org.springframework.boot:spring-boot-starter-actuator')
-	compile('org.springframework.cloud:spring-cloud-config-client')
-	compile('org.springframework.cloud:spring-cloud-starter-bus-amqp')
+	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-server'
+	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+	implementation group: 'net.logstash.logback', name: 'logstash-logback-encoder', version: '4.10'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.cloud:spring-cloud-config-client'
+	implementation 'org.springframework.cloud:spring-cloud-starter-bus-amqp'
 	
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	
-	testCompile('org.springframework.boot:spring-boot-starter-test')
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
 dependencyManagement {
@@ -61,8 +61,8 @@ bootJar {
 }
 
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 17
+targetCompatibility = 17
 
 pmd {
   ignoreFailures = true
