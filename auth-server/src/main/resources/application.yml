@@ -1,6 +1,16 @@
 server:
   port: 8301
 
+spring:
+  application:
+    name: auth-server
+  config:
+      import: "optional:configserver:"
+  cloud:
+    config:
+      uri: http://localhost:8889/admin
+      name: auth-server
+
 # Management #
 management:
   server:  
@@ -15,7 +25,10 @@ management:
 logging:
   level:
     root: INFO
-    #org.springframework.web: TRACE
+    org.springframework.web: TRACE
+  file:
+    path: ./logs
+    name: auth-server.log
 
 # Eureka #
 eureka:

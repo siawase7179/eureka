@@ -8,7 +8,7 @@ spring:
       import: "optional:configserver:"
   cloud:
     config:
-      uri: http://172.16.3.3:8889/admin
+      uri: http://localhost:8889/admin
       name: rest-server
 
 # Management #
@@ -26,9 +26,9 @@ logging:
   level:
     root: INFO
     org.springframework.web: TRACE
-  # file:
-  #   path: ./log
-  #   name: currentLog.log
+  file:
+    path: ./logs
+    name: rest-server.log
 
 # Eureka #
 eureka:

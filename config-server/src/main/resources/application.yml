@@ -11,6 +11,8 @@ management:
         include: bus-refresh
 
 spring:
+  application:
+    name: config-server
   rabbitmq:
     addresses: rabbitM:5672,rabbitS:5672  
     username: newgw
@@ -81,3 +83,11 @@ eureka:
     fetchRegistry: false
     serviceUrl:
       defaultZone: http://${eureka.instance.ip-address:localhost}:${eureka.port:8761}/eureka/
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: TRACE
+  file:
+    path: ./logs
+    name: config-server.log

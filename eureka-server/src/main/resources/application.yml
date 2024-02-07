@@ -2,6 +2,25 @@
 server:  
   port: 8761
 
+spring:
+  application:
+    name: eureka-server
+  config:
+      import: "optional:configserver:"
+  cloud:
+    config:
+      uri: http://localhost:8889/admin
+      name: eureka-server
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: TRACE
+  file:
+    path: ./logs
+    name: eureka-server.log
+
+
 # Management #
 management:
   endpoints:

@@ -1,7 +1,0 @@
-spring:
-  application:
-    name: config-server
-
-logging:
-  file: config_server.log
-  path: ./logs

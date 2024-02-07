@@ -12,7 +12,7 @@ management:
       base-path: /manage
       exposure:
         include: health,info,refresh,env,routes
-        
+
 # Eureka #
 eureka:
   client:
@@ -28,7 +28,14 @@ eureka:
 
 
 spring:
+  application:
+    name: api-gateway
+  config:
+      import: "optional:configserver:"
   cloud:
+    config:
+      uri: http://localhost:8889/admin
+      name: api-gateway
     gateway:
       routes:
         - id: rest-server
@@ -38,4 +45,12 @@ spring:
             - Method=POST
           filters:
             - name: AuthenticateFilter
-            
+
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: TRACE
+  file:
+    path: ./logs
+    name: api-gateway.log
