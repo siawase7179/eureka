@@ -14,7 +14,7 @@ import com.example.vo.ApiResponse;
 @FeignClient(value = "auth-server")
 public interface AuthorizeService {
 
-	@RequestMapping(path = "/auth/", method=RequestMethod.POST, consumes=MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(path = "/auth", method=RequestMethod.POST, consumes=MediaType.APPLICATION_JSON_VALUE)
 	public TokenInfo requestToken(@RequestBody AccountInfo accountInfo);
 
 	@RequestMapping(path = "/token", method=RequestMethod.POST)

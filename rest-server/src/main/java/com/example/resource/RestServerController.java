@@ -27,9 +27,13 @@ import jakarta.servlet.http.HttpServletRequest;
 @RequestMapping(value = "/v1")
 public class RestServerController {
     private static final Logger LOGGER = LoggerFactory.getLogger(RestServerController.class);
+    private final AuthorizeService authorizeService;
     private ObjectMapper mapper = new ObjectMapper();
+    
     @Autowired
-    private AuthorizeService authorizeService;
+    public RestServerController(AuthorizeService authorizeService){
+        this.authorizeService = authorizeService;
+    }
 
     @ResponseBody
     @RequestMapping(method = RequestMethod.POST,

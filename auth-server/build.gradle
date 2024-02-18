@@ -17,6 +17,8 @@ ext {
 }
 
 dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
@@ -32,11 +34,9 @@ dependencies {
 
 	implementation group: 'org.glassfish.jaxb', name: 'jaxb-runtime', version: '2.3.2'
 
-	// https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt
-	implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
-
-	// https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api
-	implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.10.5'
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
+    implementation 'io.jsonwebtoken:jjwt-impl:0.11.2'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.2'
 	
 	testImplementation  'org.springframework.boot:spring-boot-starter-test'
 }

@@ -24,8 +24,12 @@ import jakarta.servlet.http.HttpServletRequest;
 public class AuthorizeController {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthorizeController.class);    
 
+    private final TokenService tokenService;
+
     @Autowired
-    private TokenService tokenService;
+    public  AuthorizeController(TokenService tokenService){
+        this.tokenService = tokenService;
+    }
 
     @ResponseBody
 	@RequestMapping(method=RequestMethod.POST,

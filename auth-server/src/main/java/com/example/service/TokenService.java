@@ -2,69 +2,58 @@ package com.example.service;
 
 import java.security.Key;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.crypto.spec.SecretKeySpec;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 import com.example.config.Config;
 import com.example.model.TokenInfo;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtBuilder;
+import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import jakarta.xml.bind.DatatypeConverter;
 
-@Repository
+@Component
 public class TokenService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TokenService.class);
 
+	private final Config config;
+    
     @Autowired
-	private Config config;
+    public TokenService(Config config){
+        this.config = config;
+    }
 	
-    private String secretKey = "EurekaTokenServer!!!!!";
+    private byte[] keyBytes = "ThisisTokenSecretKey!!!!!!!!!!!!".getBytes();
 
 	public synchronized TokenInfo makeToken(String id, String password){
-		SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
+        Key secretKey = new SecretKeySpec(keyBytes, io.jsonwebtoken.SignatureAlgorithm.HS256.getJcaName());
         
-        Date currentDate = new Date();
-        Date expirationDate = new Date(currentDate.getTime() + 1000 * config.getExpiry()); // 1시간
-        
-        byte[] apiKeySecretBytes = DatatypeConverter.parseBase64Binary(secretKey);
-        Key signingKey = new SecretKeySpec(apiKeySecretBytes, signatureAlgorithm.getJcaName());
-        
-        Map<String, Object> headerMap = new HashMap<String, Object>();
+        Date expiration = new Date(System.currentTimeMillis() + 3600000);
 
-        headerMap.put("typ","JWT");
-        headerMap.put("alg","HS256");
+        String jwtToken = Jwts.builder()
+                .claim("id", id)
+                .setExpiration(expiration)
+                .signWith(secretKey)
+                .compact();
 
-        Map<String, Object> map= new HashMap<String, Object>();
-        map.put("id", id);
-        map.put("password", password);
-
-        JwtBuilder builder = Jwts.builder().setHeader(headerMap)
-                .setClaims(map)
-                .setExpiration(expirationDate)
-                .signWith(signatureAlgorithm, signingKey);
-
-        return TokenInfo.builder().token(builder.compact()).expiry(config.getExpiry()).build();
+        return TokenInfo.builder().token(jwtToken).expiry(config.getExpiry()).build();
 	}
 	
 	public synchronized boolean checkValidToken(String _token) {
         if (_token.startsWith("Bearer ")) {
             String token = _token.substring(7);
-            Claims claims =null;
             try {
-                claims = Jwts.parser().setSigningKey(DatatypeConverter.parseBase64Binary(secretKey)).parseClaimsJws(token).getBody();
-                LOGGER.error("Token id:{}, password:{}, expireTime:{} ", claims.get("id"), claims.get("password"), claims.getExpiration());
+                Key secretKey = new SecretKeySpec(keyBytes, io.jsonwebtoken.SignatureAlgorithm.HS256.getJcaName());
+                Jws<Claims> claimsJws = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
+                Claims claims = claimsJws.getBody();
+                LOGGER.error("Token id:{}, password:{}, expireTime:{} ", claims.get("id", String.class), claims.getExpiration());
             } catch (ExpiredJwtException e) {
                 LOGGER.error("Expired Token ", e);
                 return false;
