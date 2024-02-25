@@ -1,0 +1,9 @@
+server:
+  port: 8002
+
+spring:
+  cloud:
+    config:
+      enabled: false
+    bus:
+      enabled: false

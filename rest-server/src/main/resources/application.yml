@@ -1,16 +1,6 @@
 server:
   port: 8002
 
-spring:
-  application:
-    name: rest-server
-  config:
-      import: "optional:configserver:"
-  cloud:
-    config:
-      uri: http://localhost:8889/admin
-      name: rest-server
-
 # Management #
 management:
   server:  
@@ -30,25 +20,3 @@ logging:
     path: ./logs
     name: rest-server.log
 
-# Eureka #
-eureka:
-  client:
-    registerWithEureka: true
-    fetchRegistry: true
-    serviceUrl:
-      defaultZone: http://${eureka.instance.ip-address:172.16.3.3}:${eureka.port:8761}/eureka/
-  instance:
-    status-page-url-path: ${management.endpoints.web.base-path}/info
-    health-check-url-path: ${management.endpoints.web.base-path}/health
-    prefer-ip-address: true     
-  server:
-    enableSelfPreservation: true
-    waitTimeInMsWhenSyncEmpty: 0 
-    response-cache-update-interval-ms: 1000
-    peer-eureka-nodes-update-interval-ms: 60000  
-
-ribbon:
-  eager-load:
-    enabled: true
-    clients:
-    - auth-server
