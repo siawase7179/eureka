@@ -2,8 +2,17 @@ server:
   port: 8002
 
 spring:
+  application:
+    name: rest-server
   cloud:
+    discovery: 
+      enabled: false    
     config:
       enabled: false
     bus:
       enabled: false
+
+
+feign:
+  auth-server:
+    url: http://localhost:9090

@@ -13,36 +13,32 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.exception.RestException;
 import com.example.feign.AuthorizeService;
 import com.example.feign.model.AccountInfo;
-import com.example.feign.model.TokenInfo;
-import com.example.vo.ApiResponse;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.example.service.TokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping(value = "/v1")
 public class RestServerController {
     private static final Logger LOGGER = LoggerFactory.getLogger(RestServerController.class);
-    private final AuthorizeService authorizeService;
     private ObjectMapper mapper = new ObjectMapper();
-    
-    @Autowired
-    public RestServerController(AuthorizeService authorizeService){
-        this.authorizeService = authorizeService;
-    }
+
+    private final AuthorizeService authorizeService;
+    private final TokenService tokenService;
 
     @ResponseBody
     @RequestMapping(method = RequestMethod.POST,
                     produces = MediaType.APPLICATION_JSON_VALUE,
                     value = "/request"
                     )
-    public ResponseEntity<Object> requstMessage(@RequestHeader("Authorization")String token) throws JsonProcessingException{
-        ApiResponse response = authorizeService.validateToken(token);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    public ResponseEntity<Object> requstMessage(@RequestHeader("Authorization")String token) throws Exception{
+        tokenService.checkValidToken(token);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
     
     @ResponseBody
@@ -51,20 +47,15 @@ public class RestServerController {
                     value="/token"
 					)
     public ResponseEntity<Object> requestToken(HttpServletRequest request, @RequestHeader("X-Client-Id") String clientId, @RequestHeader("X-Client-Password")String clientPassword) throws Exception{
-        if (clientId == null || clientId.length() <= 0){
-            throw new RestException(HttpStatus.BAD_REQUEST, "90003", "X-Client-Id not set");
-        }
-        if (clientPassword == null || clientPassword.length() <= 0){
-            throw new RestException(HttpStatus.BAD_REQUEST,"90004", "Client-Password not set");
-        }
-
-        TokenInfo tokenInfo = authorizeService.requestToken(AccountInfo.builder()
-                                                                            .clientId(clientId)
-                                                                            .clientPassword(clientPassword)
-                                                                            .build()
-                                                                );
+        authorizeService.auth(AccountInfo.builder()
+                                    .clientId(clientId)
+                                    .clientPassword(clientPassword)
+                                    .build());
 
         LOGGER.info("remote:{} clientId:{}, clientPassword:{}", request.getRemoteHost(), clientId, clientPassword);
-        return new ResponseEntity<>(mapper.writeValueAsString(tokenInfo), HttpStatus.OK);
+        return ResponseEntity.ok()
+                            .body(mapper.writeValueAsString(
+                                    tokenService.makeToken(clientId, clientPassword)
+                                )); 
     }
 }

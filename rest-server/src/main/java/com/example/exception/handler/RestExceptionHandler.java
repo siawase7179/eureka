@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.MethodNotAllowedException;
@@ -12,6 +13,8 @@ import com.example.exception.RestException;
 import com.example.vo.ApiResponse;
 
 import feign.FeignException;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 
 @RestControllerAdvice
 public class RestExceptionHandler {
@@ -38,24 +41,17 @@ public class RestExceptionHandler {
         if (httpStatus == HttpStatus.NOT_FOUND.value()) {
             ApiResponse response = ApiResponse.builder()
                     .status(HttpStatus.NOT_FOUND.value())
-                    .code("90003")
-                    .message("id/pass not found")
+                    .code("90002")
+                    .message("Invalid credentials")
                     .build();
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-        } else if (httpStatus == HttpStatus.UNAUTHORIZED.value()) {
-            ApiResponse response = ApiResponse.builder()
-                    .status(HttpStatus.UNAUTHORIZED.value())
-                    .code("90004")
-                    .message("Token Error")
-                    .build();
-            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         } else {
              ApiResponse response = ApiResponse.builder()
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .code("99999")
                 .message("Server error")
                 .build();
-        return new ResponseEntity<>(response,HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(response,HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -75,4 +71,42 @@ public class RestExceptionHandler {
                 .build();
         return new ResponseEntity<>(response,HttpStatus.INTERNAL_SERVER_ERROR);
     };    
+
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    public ResponseEntity<Object> handleMissingRequestHeaderException(MissingRequestHeaderException e){
+        LOGGER.error("error", e);
+        return new ResponseEntity<>(
+            ApiResponse.builder()
+                .status(e.getStatusCode().value())
+                .code("90001")
+                .message(e.getMessage())
+                .build(),
+            e.getStatusCode()
+        );
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<Object> handleExpiredJwtException(ExpiredJwtException e){
+        LOGGER.error("error", e);
+        return new ResponseEntity<>(
+            ApiResponse.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .code("90003")
+                .message("Token Expired")
+                .build(),
+            HttpStatus.BAD_REQUEST
+        );
+    }
+
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<Object> handleJwtException(JwtException e){
+        return new ResponseEntity<>(
+            ApiResponse.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .code("90004")
+                .message("Invalied Token")
+                .build(),
+            HttpStatus.BAD_REQUEST
+        );
+    }
 }
