@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.define.ResultCode;
 import com.example.feign.AuthorizeService;
 import com.example.feign.model.AccountInfo;
 import com.example.service.TokenService;
@@ -26,7 +27,6 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping(value = "/v1")
 public class RestServerController {
     private static final Logger LOGGER = LoggerFactory.getLogger(RestServerController.class);
-    private ObjectMapper mapper = new ObjectMapper();
 
     private final AuthorizeService authorizeService;
     private final TokenService tokenService;
@@ -61,8 +61,8 @@ public class RestServerController {
             .body(
                 ApiResponse.builder()
                                 .status(HttpStatus.OK.value())
-                                .code("0000")
-                                .message("success")
+                                .code(ResultCode.SUCCESS.code)
+                                .message(ResultCode.SUCCESS.message)
                                 .data(
                                     tokenService.makeToken(clientId, clientPassword)
                                 )

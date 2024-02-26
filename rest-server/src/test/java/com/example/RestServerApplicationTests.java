@@ -18,14 +18,15 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
-import com.example.config.Config;
+import com.example.define.ResultCode;
 import com.example.feign.model.AccountInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 
 import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.isNotNull;
+import static org.hamcrest.Matchers.notNullValue;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -42,8 +43,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 )
 public class RestServerApplicationTests {
     private ObjectMapper mapper = new ObjectMapper();
-    @Autowired
-    private Config config;
     @Autowired
     private MockMvc mockMvc;
     
@@ -95,15 +94,31 @@ public class RestServerApplicationTests {
     }
 
     @Test
-    public void test() throws Exception{
+    @DisplayName("test_not_found")
+    public void test_not_found() throws Exception{
         mockMvc.perform(
             MockMvcRequestBuilders.get("/v1")
                 .contentType(MediaType.APPLICATION_JSON)
-        ).andDo(MockMvcResultHandlers.print())
+        )
+        .andDo(MockMvcResultHandlers.print())
         .andExpect(status().isNotFound());
     }
 
     @Test
+    @DisplayName("test_invalid_method")
+    public void test_invalid_method() throws Exception{
+        mockMvc.perform(
+            MockMvcRequestBuilders.get("/v1/token")
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isMethodNotAllowed())
+        .andExpect(jsonPath("code", notNullValue()))
+        .andExpect(jsonPath("code", is(ResultCode.NOT_SUPPORTED_METHOD.code)));
+    }
+
+    @Test
+    @DisplayName("test_invalid_header_client_id")
     public void test_invalid_header_client_id() throws Exception{
         mockMvc.perform(
             MockMvcRequestBuilders.post("/v1/token")
@@ -111,11 +126,12 @@ public class RestServerApplicationTests {
                 .header("X-Client-Id", "id")
         ).andDo(MockMvcResultHandlers.print())
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("code").isNotEmpty())
-        .andExpect(jsonPath("code").value("90001"));
+        .andExpect(jsonPath("code", notNullValue()))
+        .andExpect(jsonPath("code", is(ResultCode.INVALID_CLIENT_INFO.code)));
     }
 
     @Test
+    @DisplayName("test_invalid_header_client_password")
     public void test_invalid_header_client_password() throws Exception{
         mockMvc.perform(
             MockMvcRequestBuilders.post("/v1/token")
@@ -123,8 +139,8 @@ public class RestServerApplicationTests {
                 .header("X-Client-Password", "pass")
         ).andDo(MockMvcResultHandlers.print())
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("code").isNotEmpty())
-        .andExpect(jsonPath("code").value("90001"));
+        .andExpect(jsonPath("code", notNullValue()))
+        .andExpect(jsonPath("code", is(ResultCode.INVALID_CLIENT_INFO.code)));
     }
 
     @Test
@@ -138,7 +154,8 @@ public class RestServerApplicationTests {
         )
         .andDo(MockMvcResultHandlers.print())
         .andExpect(status().isOk())
-        .andExpect(jsonPath("code").value("0000"));
+        .andExpect(jsonPath("code", notNullValue()))
+        .andExpect(jsonPath("code", is(ResultCode.SUCCESS.code)));
     }
 
     @Test
@@ -151,7 +168,9 @@ public class RestServerApplicationTests {
                 .header("X-Client-Password", "pass")
         )
         .andDo(MockMvcResultHandlers.print())
-        .andExpect(status().isNotFound());
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("code", notNullValue()))
+        .andExpect(jsonPath("code", is(ResultCode.INVALID_CREDENTIALS.code)));
     }
 
     @Test
@@ -164,11 +183,14 @@ public class RestServerApplicationTests {
                 .header("X-Client-Password", "pass")
         )
         .andDo(MockMvcResultHandlers.print())
-        .andExpect(status().isInternalServerError());
+        .andExpect(status().isInternalServerError())
+        .andExpect(jsonPath("code", notNullValue()))
+        .andExpect(jsonPath("code", is(ResultCode.SERVER_ERROR.code)));
     }
     private String token = "eyJhbGciOiJIUzI1NiJ9.eyJpZCI6ImlkIiwiZXhwIjoxNzA4OTI5NDExfQ.jTrcLgHS5ZWLx1dgbBeBHa6etPO7k91GMoY8Ui3JMp0";
     
     @Test
+    @DisplayName("test_expired_jwt_token")
     public void test_expired_jwt_token() throws Exception{
         mockMvc.perform(
             MockMvcRequestBuilders.post("/v1/request")
@@ -176,10 +198,12 @@ public class RestServerApplicationTests {
                 .header("Authorization", "Bearer " +token)
         ).andDo(MockMvcResultHandlers.print())
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("code").value("90003"));
+        .andExpect(jsonPath("code", notNullValue()))
+        .andExpect(jsonPath("code", is(ResultCode.EXPIRED_TOKEN.code)));
     }
 
     @Test
+    @DisplayName("test_invalid_jwt_token")
     public void test_invalid_jwt_token() throws Exception{
         mockMvc.perform(
             MockMvcRequestBuilders.post("/v1/request")
@@ -188,8 +212,8 @@ public class RestServerApplicationTests {
         )
         .andDo(MockMvcResultHandlers.print())
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("code").value("90004"));
+        .andExpect(jsonPath("code", notNullValue()))
+        .andExpect(jsonPath("code", is(ResultCode.INVALID_TOKEN.code)));
     }
-
-    
 }
+

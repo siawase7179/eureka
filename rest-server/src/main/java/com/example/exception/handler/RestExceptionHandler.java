@@ -3,12 +3,14 @@ package com.example.exception.handler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.server.MethodNotAllowedException;
 
+import com.example.define.ResultCode;
 import com.example.exception.RestException;
 import com.example.vo.ApiResponse;
 
@@ -43,25 +45,33 @@ public class RestExceptionHandler {
         if (httpStatus == HttpStatus.NOT_FOUND.value()) {
             ApiResponse response = ApiResponse.builder()
                     .status(HttpStatus.NOT_FOUND.value())
-                    .code("90002")
-                    .message("Invalid credentials")
+                    .code(ResultCode.INVALID_CREDENTIALS.code)
+                    .message(ResultCode.INVALID_CREDENTIALS.message)
                     .build();
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         } else {
              ApiResponse response = ApiResponse.builder()
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .code("99999")
-                .message("Server error")
+                .code(ResultCode.SERVER_ERROR.code)
+                .message(ResultCode.SERVER_ERROR.message)
                 .build();
             return new ResponseEntity<>(response,HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @ExceptionHandler(
-        MethodNotAllowedException.class
+        HttpRequestMethodNotSupportedException.class
     )
-    public ResponseEntity<Object> handleMethodNotAllowd(MethodNotAllowedException e){
-        return new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
+    public ResponseEntity<Object> handleMethodNotAllowd(HttpRequestMethodNotSupportedException e){
+        LOGGER.error("error", e);
+        return new ResponseEntity<>(
+                ApiResponse.builder()
+                    .status(HttpStatus.METHOD_NOT_ALLOWED.value())
+                    .code(ResultCode.NOT_SUPPORTED_METHOD.code)
+                    .message(e.getMessage())
+                    .build(),
+                HttpStatus.METHOD_NOT_ALLOWED
+            );
     }
     
 
@@ -72,8 +82,8 @@ public class RestExceptionHandler {
         LOGGER.error("error", e);
         ApiResponse response = ApiResponse.builder()
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .code("99999")
-                .message("Server error")
+                .code(ResultCode.SERVER_ERROR.code)
+                .message(ResultCode.SERVER_ERROR.message)
                 .build();
         return new ResponseEntity<>(response,HttpStatus.INTERNAL_SERVER_ERROR);
     };    
@@ -86,7 +96,7 @@ public class RestExceptionHandler {
         return new ResponseEntity<>(
             ApiResponse.builder()
                 .status(e.getStatusCode().value())
-                .code("90001")
+                .code(ResultCode.INVALID_CLIENT_INFO.code)
                 .message(e.getMessage())
                 .build(),
             e.getStatusCode()
@@ -101,8 +111,8 @@ public class RestExceptionHandler {
         return new ResponseEntity<>(
             ApiResponse.builder()
                 .status(HttpStatus.BAD_REQUEST.value())
-                .code("90003")
-                .message("Token Expired")
+                .code(ResultCode.EXPIRED_TOKEN.code)
+                .message(ResultCode.EXPIRED_TOKEN.message)
                 .build(),
             HttpStatus.BAD_REQUEST
         );
@@ -115,8 +125,8 @@ public class RestExceptionHandler {
         return new ResponseEntity<>(
             ApiResponse.builder()
                 .status(HttpStatus.BAD_REQUEST.value())
-                .code("90004")
-                .message("Invalied Token")
+                .code(ResultCode.INVALID_TOKEN.code)
+                .message(ResultCode.INVALID_TOKEN.message)
                 .build(),
             HttpStatus.BAD_REQUEST
         );

@@ -15,29 +15,39 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.bind.annotation.RestController;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.is;
+
+import static org.mockito.BDDMockito.given;
+
+import com.example.exception.handler.RestExceptionHandler;
 import com.example.feign.AuthorizeService;
+import com.example.service.TokenService;
 
 @ActiveProfiles("test")
-@WebMvcTest(RestController.class)
+@WebMvcTest({
+    RestController.class,
+})
 public class RestControllerTest {
     @MockBean
     private AuthorizeService authorizeService;
 
+    @MockBean
+    private TokenService tokenService;
+
     @Autowired
     private MockMvc mockMvc;
-    
+
+    private String token = "eyJhbGciOiJIUzI1NiJ9.eyJpZCI6ImlkIiwiZXhwIjoxNzA4OTI5NDExfQ.jTrcLgHS5ZWLx1dgbBeBHa6etPO7k91GMoY8Ui3JMp0";
     @Test
-    public void Test() throws Exception{
-        
-        ResultActions actions = mockMvc.perform(
-            MockMvcRequestBuilders.post("/v1/token")
+    public void test_invalid_jwt_token() throws Exception{
+        mockMvc.perform(
+            MockMvcRequestBuilders.post("/v1/request")
                 .contentType(MediaType.APPLICATION_JSON)
-                .header("X-Client-Id", "id")
-                .header("X-Client-Password", "password")
-        );
-        actions.andDo(MockMvcResultHandlers.print())
-            .andExpect(MockMvcResultMatchers.status().isOk());
+                .header("Authorization", token)
+        )
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isBadRequest());
     }
-    
-    
 }
