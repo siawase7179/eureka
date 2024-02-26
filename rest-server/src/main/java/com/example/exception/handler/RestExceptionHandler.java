@@ -32,7 +32,9 @@ public class RestExceptionHandler {
         return new ResponseEntity<>(response, e.getStatus());
     }
 
-    @ExceptionHandler(FeignException.class)
+    @ExceptionHandler(
+        FeignException.class
+    )
     public ResponseEntity<Object> handleFeignException(FeignException e) {
         LOGGER.error("error", e);
     
@@ -55,13 +57,17 @@ public class RestExceptionHandler {
         }
     }
 
-    @ExceptionHandler(MethodNotAllowedException.class)
+    @ExceptionHandler(
+        MethodNotAllowedException.class
+    )
     public ResponseEntity<Object> handleMethodNotAllowd(MethodNotAllowedException e){
         return new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
     }
     
 
-    @ExceptionHandler(RuntimeException.class)
+    @ExceptionHandler(
+        RuntimeException.class
+    )
     public ResponseEntity<Object> handleRuntimeException(RuntimeException e) {
         LOGGER.error("error", e);
         ApiResponse response = ApiResponse.builder()
@@ -72,7 +78,9 @@ public class RestExceptionHandler {
         return new ResponseEntity<>(response,HttpStatus.INTERNAL_SERVER_ERROR);
     };    
 
-    @ExceptionHandler(MissingRequestHeaderException.class)
+    @ExceptionHandler(
+        MissingRequestHeaderException.class
+    )
     public ResponseEntity<Object> handleMissingRequestHeaderException(MissingRequestHeaderException e){
         LOGGER.error("error", e);
         return new ResponseEntity<>(
@@ -85,7 +93,9 @@ public class RestExceptionHandler {
         );
     }
 
-    @ExceptionHandler(ExpiredJwtException.class)
+    @ExceptionHandler(
+        ExpiredJwtException.class
+    )
     public ResponseEntity<Object> handleExpiredJwtException(ExpiredJwtException e){
         LOGGER.error("error", e);
         return new ResponseEntity<>(
@@ -98,7 +108,9 @@ public class RestExceptionHandler {
         );
     }
 
-    @ExceptionHandler(JwtException.class)
+    @ExceptionHandler(
+        JwtException.class
+    )
     public ResponseEntity<Object> handleJwtException(JwtException e){
         return new ResponseEntity<>(
             ApiResponse.builder()

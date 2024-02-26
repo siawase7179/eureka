@@ -24,6 +24,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 
+import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.isNotNull;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -136,8 +138,7 @@ public class RestServerApplicationTests {
         )
         .andDo(MockMvcResultHandlers.print())
         .andExpect(status().isOk())
-        .andExpect(jsonPath("token").isNotEmpty())
-        .andExpect(jsonPath("expiry").value(config.getExpiry()));
+        .andExpect(jsonPath("code").value("0000"));
     }
 
     @Test

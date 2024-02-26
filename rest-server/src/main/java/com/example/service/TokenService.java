@@ -38,7 +38,11 @@ public class TokenService {
                 .signWith(secretKey)
                 .compact();
 
-        return TokenInfo.builder().token(jwtToken).expiry(config.getExpiry()).build();
+        return TokenInfo.builder()
+                .token(jwtToken)
+                .schema("Bearer")
+                .expiry(config.getExpiry())
+                .build();
 	}
 	
 	public synchronized void checkValidToken(String _token) throws Exception{

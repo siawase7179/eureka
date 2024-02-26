@@ -14,5 +14,6 @@ import lombok.ToString;
 @NoArgsConstructor
 public class TokenInfo {
     private String token;
+    private String schema;
     private long expiry;
 }

@@ -2,7 +2,6 @@ package com.example.resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.feign.AuthorizeService;
 import com.example.feign.model.AccountInfo;
 import com.example.service.TokenService;
+import com.example.vo.ApiResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -46,16 +46,27 @@ public class RestServerController {
 					produces = MediaType.APPLICATION_JSON_VALUE,
                     value="/token"
 					)
-    public ResponseEntity<Object> requestToken(HttpServletRequest request, @RequestHeader("X-Client-Id") String clientId, @RequestHeader("X-Client-Password")String clientPassword) throws Exception{
-        authorizeService.auth(AccountInfo.builder()
-                                    .clientId(clientId)
-                                    .clientPassword(clientPassword)
-                                    .build());
+    public ResponseEntity<Object> requestToken(HttpServletRequest request,
+                                               @RequestHeader("X-Client-Id") String clientId,
+                                               @RequestHeader("X-Client-Password")String clientPassword) throws Exception{
+        authorizeService.auth(
+            AccountInfo.builder()
+                .clientId(clientId)
+                .clientPassword(clientPassword)
+                .build()
+        );
 
         LOGGER.info("remote:{} clientId:{}, clientPassword:{}", request.getRemoteHost(), clientId, clientPassword);
         return ResponseEntity.ok()
-                            .body(mapper.writeValueAsString(
+            .body(
+                ApiResponse.builder()
+                                .status(HttpStatus.OK.value())
+                                .code("0000")
+                                .message("success")
+                                .data(
                                     tokenService.makeToken(clientId, clientPassword)
-                                )); 
+                                )
+                                .build()
+        ); 
     }
 }
